@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileHandler {
 
@@ -11,26 +13,26 @@ public class FileHandler {
         }
     }
 
-    public static Consumable readObjektFromFile() throws FileNotFoundException {
-        Consumable c;
-
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("src/Consumable.ser"))){
-            while ((c = (Consumable) in.readObject()) != null){
-                return c;
+    public static List<Consumable> readObjektFromFile(){
+        List<Consumable> consumableList = new ArrayList<>();
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("src/Consumable.ser"))) {
+            while (true) {
+                try {
+                    Consumable c = (Consumable) in.readObject();
+                    consumableList.add(c);
+                } catch (EOFException e) {
+                    break;
+                }
             }
-
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return consumableList;
     }
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         Consumable c = new Consumable("carbonara",10);
         //writeObjektToFile(c);
-        System.out.println(readObjektFromFile().name);
+        System.out.println(readObjektFromFile().get(0).name);
 
     }
 }
