@@ -1,4 +1,6 @@
-public class Consumable {
+import java.io.Serializable;
+
+public class Consumable implements Serializable {
     String name;
     int timeToPrepare;
 
