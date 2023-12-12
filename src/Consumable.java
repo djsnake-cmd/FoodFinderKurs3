@@ -9,6 +9,12 @@ public class Consumable implements Serializable {
         this.timeToPrepare = timeToPrepare;
 
     }
+    public String getName() {
+        return name;
+    }
 
+    public int getTimeToPrepare() {
+        return timeToPrepare;
+    }
 
 }
