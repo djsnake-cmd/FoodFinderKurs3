@@ -1,38 +1,35 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class FileHandler {
 
-    public static void writeObjektToFile(Consumable input) {
-
-        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("src/Consumable.ser"))) {
-            outputStream.writeObject(input);
+    public static void writeListToFile(ArrayList<Consumable> consumableList) {
+        Gson gson = new Gson();
+        try (FileWriter writer = new FileWriter("src/Consumable.ser")) {
+            gson.toJson(consumableList,writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static List<Consumable> readObjektFromFile(){
-        List<Consumable> consumableList = new ArrayList<>();
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("src/Consumable.ser"))) {
-            while (true) {
-                try {
-                    Consumable c = (Consumable) in.readObject();
-                    consumableList.add(c);
-                } catch (EOFException e) {
-                    break;
-                }
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+    public static ArrayList<Consumable> readListFromFile(){
+        Gson gson = new Gson();
+        try(FileReader reader = new FileReader("src/Consumable.ser")){
+            return gson.fromJson(reader, new TypeToken<List<Consumable>>(){}.getType());
+        }catch (IOException e){
+            e.printStackTrace();
         }
-        return consumableList;
+        return new ArrayList<>();
     }
     public static void main(String[] args) {
         Consumable c = new Consumable("carbonara",10);
-        //writeObjektToFile(c);
-        System.out.println(readObjektFromFile().get(0).name);
+        ArrayList<Consumable> list = new ArrayList<>();
+        list.add(c);
+        writeListToFile(list);
+        //System.out.println(readObjektFromFile().get(1).name);
 
     }
 }
