@@ -19,7 +19,8 @@ public class Main {
             fileHandler = new FileHandler("Food");
             fileHandler.ReadFile();
             m.ShowList(fileHandler);
-            System.out.println("Sort by time?");
+            System.out.println("1. Sort");
+            System.out.println("2. Shuffle");
             scan.nextLine();
             String alt2 = scan.nextLine();
             if (alt2.equalsIgnoreCase("1")) {
@@ -28,7 +29,8 @@ public class Main {
                 m.ShowList(fileHandler);
 
             } else if (alt2.equalsIgnoreCase("2")) {
-
+                Collections.shuffle(fileHandler.getConsumableList());
+                m.ShowList(fileHandler);
             } else {
                 System.out.println("...");
             }

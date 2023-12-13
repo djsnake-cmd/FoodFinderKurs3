@@ -1,5 +1,4 @@
 import java.io.*;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class FileHandler {
@@ -8,11 +7,10 @@ public class FileHandler {
     String filePath = "src";
     ArrayList<Consumable> consumableList = new ArrayList<>();
     String[] toSetNameAndTime;
-    String consumable;
-
+    String consumableType;
     Consumable consumableClass;
     FileHandler(String consumable) {
-        this.consumable = consumable;
+        this.consumableType = consumable;
         try {
             br = new BufferedReader(new FileReader(filePath+"/"+consumable));
             bw = new BufferedWriter(new FileWriter(filePath+"/"+consumable, true));
@@ -32,17 +30,22 @@ public class FileHandler {
         return ;
     }*/
     void WriteToFile(Consumable consumable) throws IOException {
-        bw.write(consumable.name + "/" + consumable.timeToPrepare);
-        bw.close();
+        if (consumableType.equals("Food")) {
+            bw.write(consumable.name + "/" + consumable.timeToPrepare + "/" + Food.TypeOfDiet.values());
+            bw.close();
+        } else if (consumableType.equals("Drink")) {
+            bw.write(consumable.name + "/" + consumable.timeToPrepare + "/"
+                    + );
+        }
     }
 
     void ReadFile() throws IOException {
         String text;
-        toSetNameAndTime = new String[2];
+        toSetNameAndTime = new String[3];
         while ((text = br.readLine()) != null){
             toSetNameAndTime = text.split("/");
             consumableClass = new Food(toSetNameAndTime[0],
-                    Integer.parseInt(toSetNameAndTime[1]));
+                    Integer.parseInt(toSetNameAndTime[1]), toSetNameAndTime[2]);
             consumableList.add(consumableClass);
         }
     }
