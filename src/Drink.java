@@ -5,4 +5,10 @@ public class Drink extends Consumable{
         super(name, timeToPrepare);
         this.alcoholicOrNonAlcoholic = alcoholicOrNonAlcoholic;
     }
+    public boolean getAlcoholOrNot() {
+        return alcoholicOrNonAlcoholic;
+    }
+    public int getTimeToPrepare() {
+        return timeToPrepare;
+    }
 }
