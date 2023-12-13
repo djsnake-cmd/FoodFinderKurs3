@@ -1,75 +1,37 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class FileHandler {
-    BufferedReader br;
-    BufferedWriter bw;
-    String filePath = "src";
-    ArrayList<Consumable> consumableList = new ArrayList<>();
-    String[] toSetNameAndTime;
-    String consumableType;
-    Consumable consumableClass;
-    FileHandler(String consumable) {
-        this.consumableType = consumable;
-        try {
-            br = new BufferedReader(new FileReader(filePath+"/"+consumable));
-            bw = new BufferedWriter(new FileWriter(filePath+"/"+consumable, true));
 
+    public static void writeListToFile(ArrayList<Consumable> consumableList) {
+        Gson gson = new Gson();
+        try (FileWriter writer = new FileWriter("src/Consumable.ser")) {
+            gson.toJson(consumableList,writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    /*ArrayList<Consumable> ReadFromFile() throws IOException {
-        ArrayList<String> consumableList = new ArrayList<>();
-        String text;
-        while ((text = br.readLine()) != null) {
-            consumableList.add(text);
+    public static ArrayList<Consumable> readListFromFile(){
+        Gson gson = new Gson();
+        try(FileReader reader = new FileReader("src/Consumable.ser")){
+            return gson.fromJson(reader, new TypeToken<List<Consumable>>(){}.getType());
+        }catch (IOException e){
+            e.printStackTrace();
         }
-        return ;
-    }*/
-
-    void WriteToFile(Consumable consumable) throws IOException {
-        if (consumableType.equals("Food")) {
-            bw.write(consumable.name + "/" + consumable.timeToPrepare + "/" + Arrays.toString(Food.TypeOfDiet.values()));
-            bw.close();
-        } else if (consumableType.equals("Drink")) {
-            bw.write(consumable.name + "/" + consumable.timeToPrepare + "/"
-                    );
-        }
+        return new ArrayList<>();
     }
-
-    void ReadFile() throws IOException {
-        boolean sortAlcohol;
-        String text;
-        toSetNameAndTime = new String[3];
-        while ((text = br.readLine()) != null){
-            toSetNameAndTime = text.split("/");
-            if (consumableType.equals("Food")) {
-                consumableClass = new Food(toSetNameAndTime[0],
-                        Integer.parseInt(toSetNameAndTime[1]), toSetNameAndTime[2]);
-                consumableList.add(consumableClass);
-            } else if (consumableType.equals("Drink")) {
-                consumableClass = new Drink(toSetNameAndTime[0], Integer.parseInt(toSetNameAndTime[1]),
-                        Boolean.parseBoolean(toSetNameAndTime[2]));
-                consumableList.add(consumableClass);
-            }
-        }
-    }
-
-    ArrayList<Consumable> getConsumableList() {
-        return consumableList;
-    }
-
-    void RemoveConsumable(Consumable consumable) {
+    public static void main(String[] args) {
+        Consumable c = new Consumable("carbonara",10);
+        ArrayList<Consumable> list = new ArrayList<>();
+        list.add(c);
+        writeListToFile(list);
+        //System.out.println(readObjektFromFile().get(1).name);
 
     }
-
-    /*public static void main(String[] args) throws IOException {
-        FileHandler fh = new FileHandler("Drink");
-        fh.ReadFile();
-
-    }*/
 }
+
+
