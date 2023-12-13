@@ -1,6 +1,6 @@
 public class Food extends Consumable implements Comparable<Food>{
-    String type;
     TypeOfDiet typeOfDiet;
+    Object object;
 
     @Override
     public int compareTo(Food other) {
@@ -12,14 +12,16 @@ public class Food extends Consumable implements Comparable<Food>{
         MEAT,
         VEGAN
     }
-    public Food(String name, int timeToPrepare, String type) {
+    public Food(String name, int timeToPrepare, Object object) {
         super(name, timeToPrepare);
-        this.type = type;
-        if (type.equals("VEGAN")) {
+        this.object = object;
+    }
+    public void getObject() {
+        if (object == TypeOfDiet.VEGAN) {
             typeOfDiet = Food.TypeOfDiet.VEGAN;
-        } else if (type.equals("VEGETARIAN")) {
+        } else if (object == TypeOfDiet.VEGETARIAN) {
             typeOfDiet = TypeOfDiet.VEGETARIAN;
-        } else if (type.equals("MEAT")) {
+        } else if (object == TypeOfDiet.MEAT) {
             typeOfDiet = TypeOfDiet.MEAT;
         }
     }

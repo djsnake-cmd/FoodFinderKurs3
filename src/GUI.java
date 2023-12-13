@@ -1,16 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 public class GUI extends JFrame{
 
@@ -20,15 +16,19 @@ public class GUI extends JFrame{
 
     JButton getConsumableButton = new JButton("Hämta");
     JButton refreshConsumableButton = new JButton("Sök igen");
+    JButton refreshBySortingTimeButton = new JButton("Sök minsta tillagningstid");
     JButton addConsumableButton = new JButton("Lägg till");
 
     JLabel addNameLabel =  new JLabel("Namn:");
     JLabel addTimeLabel = new JLabel("Tillagningstid:");
+    JLabel addTypeOfFood = new JLabel("Typ: ");
 
     JLabel showDishLabel = new JLabel();
     JLabel showTimeLabel = new JLabel();
     JTextArea addNameTextArea = new JTextArea(2,10);
     JTextArea addTimeTextArea = new JTextArea(2,10);
+    JComboBox addTypeOfFoodDropBox = new JComboBox();
+    JComboBox showTypeOfFoodBox = new JComboBox();
     JButton searchRecipeButton = new JButton("Sök recept");
     JButton addFoodButton = new JButton("Lägg till");
     JButton backToMainButton = new JButton("Tillbaka");
@@ -85,22 +85,39 @@ public class GUI extends JFrame{
         gbc.gridx = 1;
         addFoodPanel.add(addTimeTextArea,gbc);
         gbc.gridx = 0; gbc.gridy = 2;
+        addFoodPanel.add(addTypeOfFood, gbc);
+        gbc.gridx = 1;
+        addDropBox(addFoodPanel, gbc, 0, 3, addTypeOfFoodDropBox);
+        addTypeOfFoodDropBox.removeItemAt(0);
         addFoodPanel.add(addFoodButton,gbc);
         mainPanel.add(addFoodPanel,"addfood");
 
         //VISA RECEPT
         JPanel showFoodPanel = new JPanel(new GridBagLayout());
         gbc.gridy = 0;
+        addDropBox(showFoodPanel, gbc, null,1, showTypeOfFoodBox);
         showFoodPanel.add(showDishLabel,gbc);
-        gbc.gridy = 1;
-        showFoodPanel.add(showTimeLabel,gbc);
         gbc.gridy = 2;
-        showFoodPanel.add(refreshConsumableButton,gbc);
+        showFoodPanel.add(showTimeLabel,gbc);
         gbc.gridy = 3;
-        showFoodPanel.add(searchRecipeButton,gbc);
+        showFoodPanel.add(refreshConsumableButton,gbc);
         gbc.gridy = 4;
+        showFoodPanel.add(refreshBySortingTimeButton, gbc);
+        gbc.gridy = 5;
+        showFoodPanel.add(searchRecipeButton,gbc);
+        gbc.gridy = 6;
         showFoodPanel.add(backToMainButton,gbc);
         mainPanel.add(showFoodPanel,"showrecipe");
+    }
+
+    private void addDropBox(JPanel panel, GridBagConstraints gbc, Integer gridNum1, Integer gridNum2,
+                            JComboBox groupboxes) {
+        panel.add(groupboxes, gbc);
+        gbc.gridy = gridNum2;
+        groupboxes.addItem("Alla");
+        groupboxes.addItem(Food.TypeOfDiet.MEAT);
+        groupboxes.addItem(Food.TypeOfDiet.VEGETARIAN);
+        groupboxes.addItem(Food.TypeOfDiet.VEGAN);
     }
 
     private void addActionListeners(){
@@ -114,12 +131,14 @@ public class GUI extends JFrame{
         addConsumableButton.addActionListener(e -> cards.show(mainPanel,"addfood"));
 
         addFoodButton.addActionListener(e->{
-            Consumable newFood = new Consumable(addNameTextArea.getText(),Integer.parseInt(addTimeTextArea.getText()));
+            Consumable newFood = new Food(addNameTextArea.getText(),Integer.parseInt(addTimeTextArea.getText()),
+                    addTypeOfFoodDropBox.getSelectedItem());
             consumableArrayList.add(newFood);
             FileHandler.writeListToFile(consumableArrayList);
             cards.show(mainPanel,"first");
             addNameTextArea.setText("");
             addTimeTextArea.setText("");
+
         });
 
         getConsumableButton.addActionListener(e-> {
@@ -133,6 +152,14 @@ public class GUI extends JFrame{
             Collections.shuffle(consumableArrayList);
             showDishLabel.setText(consumableArrayList.get(0).name);
             showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+            cards.show(mainPanel,"showrecipe");
+        });
+
+        refreshBySortingTimeButton.addActionListener(e -> {
+            Filter filter = new Filter();
+            ArrayList<Consumable> filteredList = filter.FilterByTime(consumableArrayList);
+            showDishLabel.setText(filteredList.get(0).name);
+            showTimeLabel.setText("Tillagningstid: " + filteredList.get(0).timeToPrepare + " minuter");
             cards.show(mainPanel,"showrecipe");
         });
 

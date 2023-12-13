@@ -6,12 +6,12 @@ import java.util.concurrent.Callable;
 
 public class Filter {
 
-    public ArrayList<Consumable> FilterByTime(FileHandler fileHandler) {
-        fileHandler.getConsumableList().sort(Comparator.comparingInt(Consumable::getTimeToPrepare));
-        return fileHandler.getConsumableList();
+    public ArrayList<Consumable> FilterByTime(ArrayList<Consumable> consumableList) {
+        consumableList.sort(Comparator.comparingInt(Consumable::getTimeToPrepare));
+        return consumableList;
     }
 
-    public ArrayList<Consumable> VeganFilter(FileHandler fileHandler) {
+    /*public ArrayList<Consumable> VeganFilter(FileHandler fileHandler) {
         ArrayList<Consumable> VeganFoodList = new ArrayList<>();
         for (Consumable consumable : fileHandler.getConsumableList()) {
             if (consumable instanceof Food food) {
@@ -21,5 +21,5 @@ public class Filter {
             }
         }
         return  VeganFoodList;
-    }
+    }*/
 }
