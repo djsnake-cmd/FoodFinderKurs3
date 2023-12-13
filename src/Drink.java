@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Drink extends Consumable{
 
     boolean alcoholicOrNonAlcoholic;

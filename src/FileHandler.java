@@ -26,6 +26,7 @@ public class FileHandler {
     }
     public static void main(String[] args) {
         Consumable c = new Consumable("carbonara",10);
+        c.setType(Food.TypeOfDiet.MEAT);
         ArrayList<Consumable> list = new ArrayList<>();
         list.add(c);
         writeListToFile(list);

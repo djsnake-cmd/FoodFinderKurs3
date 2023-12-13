@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 public class GUI extends JFrame{
 
@@ -25,10 +26,11 @@ public class GUI extends JFrame{
 
     JLabel showDishLabel = new JLabel();
     JLabel showTimeLabel = new JLabel();
+    JLabel showTypeLabel = new JLabel("Typ: ");
     JTextArea addNameTextArea = new JTextArea(2,10);
     JTextArea addTimeTextArea = new JTextArea(2,10);
-    JComboBox addTypeOfFoodDropBox = new JComboBox();
-    JComboBox showTypeOfFoodBox = new JComboBox();
+    JComboBox<Food.TypeOfDiet> addTypeOfFoodDropBox = new JComboBox<>();
+    JComboBox<Food.TypeOfDiet> showTypeOfFoodBox = new JComboBox<>();
     JButton searchRecipeButton = new JButton("Sök recept");
     JButton addFoodButton = new JButton("Lägg till");
     JButton backToMainButton = new JButton("Tillbaka");
@@ -100,39 +102,63 @@ public class GUI extends JFrame{
         gbc.gridy = 2;
         showFoodPanel.add(showTimeLabel,gbc);
         gbc.gridy = 3;
-        showFoodPanel.add(refreshConsumableButton,gbc);
+        showFoodPanel.add(showTypeLabel, gbc);
         gbc.gridy = 4;
-        showFoodPanel.add(refreshBySortingTimeButton, gbc);
+        showFoodPanel.add(refreshConsumableButton,gbc);
         gbc.gridy = 5;
-        showFoodPanel.add(searchRecipeButton,gbc);
+        showFoodPanel.add(refreshBySortingTimeButton, gbc);
         gbc.gridy = 6;
+        showFoodPanel.add(searchRecipeButton,gbc);
+        gbc.gridy = 7;
         showFoodPanel.add(backToMainButton,gbc);
         mainPanel.add(showFoodPanel,"showrecipe");
     }
 
     private void addDropBox(JPanel panel, GridBagConstraints gbc, Integer gridNum1, Integer gridNum2,
-                            JComboBox groupboxes) {
+                            JComboBox<Food.TypeOfDiet> groupboxes) {
         panel.add(groupboxes, gbc);
-        gbc.gridy = gridNum2;
-        groupboxes.addItem("Alla");
+        if (gridNum1 == null) {
+            gbc.gridy = gridNum2;
+        } else if (gridNum2 == null) {
+            gbc.gridx = gridNum1;
+        } else {
+            gbc.gridx = gridNum1;
+            gbc.gridy = gridNum2;
+        }
+        groupboxes.addItem(Food.TypeOfDiet.ALLA);
         groupboxes.addItem(Food.TypeOfDiet.MEAT);
         groupboxes.addItem(Food.TypeOfDiet.VEGETARIAN);
         groupboxes.addItem(Food.TypeOfDiet.VEGAN);
+        groupboxes.setSelectedIndex(0);
     }
+
+    public void SortingSpace(Object selectedType) {
+        ArrayList<Consumable> sortedFoodList;
+        Filter filter = new Filter();
+        sortedFoodList = filter.TypeOfFoodFilter(consumableArrayList,
+                selectedType);
+        //Collections.shuffle(sortedFoodList);
+        showDishLabel.setText(sortedFoodList.get(0).name);
+        showTimeLabel.setText("Tillagningstid: " + sortedFoodList.get(0).timeToPrepare + " minuter");
+        showTypeLabel.setText("Typ: "+sortedFoodList.get(0).getType());
+        cards.show(mainPanel,"showrecipe");
+    }
+
 
     private void addActionListeners(){
         foodButton.addActionListener(e-> {
             Collections.shuffle(consumableArrayList);
             showDishLabel.setText(consumableArrayList.get(0).name);
             showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+            showTypeLabel.setText("Typ: " + consumableArrayList.get(0).getType());
             cards.show(mainPanel,"second");
         });
 
         addConsumableButton.addActionListener(e -> cards.show(mainPanel,"addfood"));
 
         addFoodButton.addActionListener(e->{
-            Consumable newFood = new Food(addNameTextArea.getText(),Integer.parseInt(addTimeTextArea.getText()),
-                    addTypeOfFoodDropBox.getSelectedItem());
+            Consumable newFood = new Food(addNameTextArea.getText(),Integer.parseInt(addTimeTextArea.getText()));
+            newFood.setType(addTypeOfFoodDropBox.getSelectedItem());
             consumableArrayList.add(newFood);
             FileHandler.writeListToFile(consumableArrayList);
             cards.show(mainPanel,"first");
@@ -145,14 +171,28 @@ public class GUI extends JFrame{
             //consumableArrayList = FileHandler.readObjektFromFile();
             Collections.shuffle(consumableArrayList);
             cards.show(mainPanel,"showrecipe");
-
         });
 
         refreshConsumableButton.addActionListener(e -> {
+
+
+
             Collections.shuffle(consumableArrayList);
-            showDishLabel.setText(consumableArrayList.get(0).name);
-            showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
-            cards.show(mainPanel,"showrecipe");
+            if (showTypeOfFoodBox.getSelectedIndex() == 0) {
+                Collections.shuffle(consumableArrayList);
+                showDishLabel.setText(consumableArrayList.get(0).name);
+                showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+                showTypeLabel.setText("Typ: " + consumableArrayList.get(0).getType());
+                //System.out.println("Type of object at index 0: " + consumableArrayList.get(0).getClass().getSimpleName());
+                cards.show(mainPanel,"showrecipe");
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 1) {
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 2) {
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 3) {
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            }
+
         });
 
         refreshBySortingTimeButton.addActionListener(e -> {
@@ -160,6 +200,7 @@ public class GUI extends JFrame{
             ArrayList<Consumable> filteredList = filter.FilterByTime(consumableArrayList);
             showDishLabel.setText(filteredList.get(0).name);
             showTimeLabel.setText("Tillagningstid: " + filteredList.get(0).timeToPrepare + " minuter");
+            showTypeLabel.setText("Typ: " + filteredList.get(0));
             cards.show(mainPanel,"showrecipe");
         });
 

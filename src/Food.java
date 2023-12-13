@@ -1,6 +1,8 @@
+import java.util.Objects;
+
 public class Food extends Consumable implements Comparable<Food>{
     TypeOfDiet typeOfDiet;
-    Object object;
+    Object dietType;
 
     @Override
     public int compareTo(Food other) {
@@ -8,22 +10,34 @@ public class Food extends Consumable implements Comparable<Food>{
     }
 
     enum TypeOfDiet {
+        ALLA,
         VEGETARIAN,
         MEAT,
         VEGAN
     }
-    public Food(String name, int timeToPrepare, Object object) {
+    public Food(String name, int timeToPrepare) {
         super(name, timeToPrepare);
-        this.object = object;
     }
-    public void getObject() {
-        if (object == TypeOfDiet.VEGAN) {
+
+    @Override
+    public void setType(Object type) {
+        super.setType(type);
+        dietType = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+    @Override
+    public String getType() {
+        if (dietType == TypeOfDiet.VEGAN) {
             typeOfDiet = Food.TypeOfDiet.VEGAN;
-        } else if (object == TypeOfDiet.VEGETARIAN) {
+        } else if (dietType == TypeOfDiet.VEGETARIAN) {
             typeOfDiet = TypeOfDiet.VEGETARIAN;
-        } else if (object == TypeOfDiet.MEAT) {
+        } else if (dietType == TypeOfDiet.MEAT) {
             typeOfDiet = TypeOfDiet.MEAT;
         }
+        return Objects.toString(typeOfDiet);
     }
     public int getTimeToPrepare() {
         return timeToPrepare;
