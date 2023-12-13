@@ -26,7 +26,7 @@ public class Filter {
             }
         }
 
-        // Flytta det valda objektet längst bak i listan
+
         if (!consumableList.isEmpty()) {
             Consumable selectedConsumable = consumableList.remove(0);
             consumableList.add(selectedConsumable);
