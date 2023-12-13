@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FileHandler {
     BufferedReader br;
@@ -29,24 +30,32 @@ public class FileHandler {
         }
         return ;
     }*/
+
     void WriteToFile(Consumable consumable) throws IOException {
         if (consumableType.equals("Food")) {
-            bw.write(consumable.name + "/" + consumable.timeToPrepare + "/" + Food.TypeOfDiet.values());
+            bw.write(consumable.name + "/" + consumable.timeToPrepare + "/" + Arrays.toString(Food.TypeOfDiet.values()));
             bw.close();
         } else if (consumableType.equals("Drink")) {
             bw.write(consumable.name + "/" + consumable.timeToPrepare + "/"
-                    + );
+                    );
         }
     }
 
     void ReadFile() throws IOException {
+        boolean sortAlcohol;
         String text;
         toSetNameAndTime = new String[3];
         while ((text = br.readLine()) != null){
             toSetNameAndTime = text.split("/");
-            consumableClass = new Food(toSetNameAndTime[0],
-                    Integer.parseInt(toSetNameAndTime[1]), toSetNameAndTime[2]);
-            consumableList.add(consumableClass);
+            if (consumableType.equals("Food")) {
+                consumableClass = new Food(toSetNameAndTime[0],
+                        Integer.parseInt(toSetNameAndTime[1]), toSetNameAndTime[2]);
+                consumableList.add(consumableClass);
+            } else if (consumableType.equals("Drink")) {
+                consumableClass = new Drink(toSetNameAndTime[0], Integer.parseInt(toSetNameAndTime[1]),
+                        Boolean.parseBoolean(toSetNameAndTime[2]));
+                consumableList.add(consumableClass);
+            }
         }
     }
 

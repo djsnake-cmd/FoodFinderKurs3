@@ -11,11 +11,14 @@ public class Filter {
         return fileHandler.getConsumableList();
     }
 
-    public ArrayList<Food> VeganFilter(FileHandler fileHandler) {
-        ArrayList<Food> VeganFoodList = new ArrayList<>();
-
-        for (Consumable food : fileHandler.getConsumableList()) {
-            if ()
+    public ArrayList<Consumable> VeganFilter(FileHandler fileHandler) {
+        ArrayList<Consumable> VeganFoodList = new ArrayList<>();
+        for (Consumable consumable : fileHandler.getConsumableList()) {
+            if (consumable instanceof Food food) {
+                if (food.typeOfDiet.equals(Food.TypeOfDiet.VEGAN)) {
+                    VeganFoodList.add(food);
+                }
+            }
         }
         return  VeganFoodList;
     }

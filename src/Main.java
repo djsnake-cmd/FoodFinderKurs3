@@ -24,9 +24,22 @@ public class Main {
             scan.nextLine();
             String alt2 = scan.nextLine();
             if (alt2.equalsIgnoreCase("1")) {
-                Filter filters = new Filter();
-                filters.FilterByTime(fileHandler);
+                filter = new Filter();
+                filter.FilterByTime(fileHandler);
                 m.ShowList(fileHandler);
+                System.out.println("Vegan?");
+                String alt3 = scan.nextLine();
+                if (alt3.equalsIgnoreCase("y")) {
+                    filter = new Filter();
+                    for (Consumable veganFood : filter.VeganFilter(fileHandler)) {
+                        if (veganFood instanceof Food food) {
+                            System.out.println("Name: " + food.name);
+                            System.out.println("Time: " + food.timeToPrepare);
+                            System.out.println("Type: " + food.typeOfDiet);
+                        }
+
+                    }
+                }
 
             } else if (alt2.equalsIgnoreCase("2")) {
                 Collections.shuffle(fileHandler.getConsumableList());
@@ -39,6 +52,7 @@ public class Main {
         } else {
             System.exit(0);
         }
+
 
     }
 
