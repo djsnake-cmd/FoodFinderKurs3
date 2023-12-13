@@ -8,5 +8,7 @@ public class Consumable {
 
     }
 
-
+    public int getTimeToPrepare() {
+        return timeToPrepare;
+    }
 }
