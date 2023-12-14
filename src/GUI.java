@@ -18,8 +18,8 @@ public class GUI extends JFrame{
     JLabel addTimeLabel = new JLabel("Tillagningstid:");
     JLabel showDishLabel = new JLabel();
     JLabel showTimeLabel = new JLabel();
-    Font textFont = new Font("Verdana",Font.BOLD,18);
-    Font smallerFont = new Font("Verdana",Font.PLAIN,13);
+    Font textFont = new Font("Verdana",Font.BOLD,16);
+    Font smallerFont = new Font("Verdana",Font.BOLD,12);
     JTextArea addNameTextArea = new JTextArea(2,10);
     JTextArea addTimeTextArea = new JTextArea(2,10);
     JButton searchRecipeButton = new JButton("Sök recept");
@@ -27,8 +27,6 @@ public class GUI extends JFrame{
     JButton backToMainButton = new JButton("Tillbaka");
     JButton removeButton = new JButton("Ta bort maträtt");
     JButton showAllFoodsButton = new JButton("Visa alla rätter");
-    //JLabel showAllFoodsLabel = new JLabel();
-    Dimension buttonDim = new Dimension(40,40);
     JTextArea showAllFoodsText = new JTextArea();
     JScrollPane showAllFoodsSP = new JScrollPane(showAllFoodsText);
     JButton backFromShowAllButton = new JButton("Tillbaka");
@@ -41,6 +39,7 @@ public class GUI extends JFrame{
 
 
     public GUI(){
+        FileHandler.getInstance();
 
         cards = new CardLayout();
         mainPanel = new JPanel(cards);
@@ -131,6 +130,7 @@ public class GUI extends JFrame{
 
         mainPanel.add(showFoodPanel,"showrecipe");
 
+        //VISA ALLA MATRÄTTER
         JPanel showAllFoodsPanel = new JPanel(new BorderLayout());
         showAllFoodsPanel.setBackground(backgroundColor);
         showAllFoodsPanel.add(backFromShowAllButton,BorderLayout.NORTH);
@@ -202,7 +202,6 @@ public class GUI extends JFrame{
             System.out.println("Du tog bort: " + consumableArrayList.get(0).name);
             consumableArrayList.remove(0);
             FileHandler.writeListToFile(consumableArrayList);
-            System.out.println(consumableArrayList.get(0).name);
         });
 
         showAllFoodsButton.addActionListener(e->{
@@ -223,6 +222,6 @@ public class GUI extends JFrame{
 
 
     public static void main(String[] args) {
-        GUI g = new GUI();
+        //GUI g = new GUI();
     }
 }
