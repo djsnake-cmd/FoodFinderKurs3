@@ -7,7 +7,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 public class GUI extends JFrame{
 
@@ -29,18 +28,19 @@ public class GUI extends JFrame{
     JLabel showTypeLabel = new JLabel("Typ: ");
     JTextArea addNameTextArea = new JTextArea(2,10);
     JTextArea addTimeTextArea = new JTextArea(2,10);
-    JComboBox<Food.TypeOfDiet> addTypeOfFoodDropBox = new JComboBox<>();
-    JComboBox<Food.TypeOfDiet> showTypeOfFoodBox = new JComboBox<>();
+    JComboBox<Food.TypeOfFood> addTypeOfFoodDropBox = new JComboBox<>();
+    JComboBox<Food.TypeOfFood> showTypeOfFoodBox = new JComboBox<>();
     JButton searchRecipeButton = new JButton("Sök recept");
     JButton addFoodButton = new JButton("Lägg till");
     JButton backToMainButton = new JButton("Tillbaka");
     CardLayout cards;
     Desktop desktop;
 
-    ArrayList<Consumable> consumableArrayList;
-
+    ArrayList<Food> consumableArrayList;
+    ArrayList<Food> sortedFoodList;
 
     public GUI(){
+        ArrayList<Food> sortedFoodList;
 
         cards = new CardLayout();
         mainPanel = new JPanel(cards);
@@ -115,7 +115,7 @@ public class GUI extends JFrame{
     }
 
     private void addDropBox(JPanel panel, GridBagConstraints gbc, Integer gridNum1, Integer gridNum2,
-                            JComboBox<Food.TypeOfDiet> groupboxes) {
+                            JComboBox<Food.TypeOfFood> groupboxes) {
         panel.add(groupboxes, gbc);
         if (gridNum1 == null) {
             gbc.gridy = gridNum2;
@@ -125,22 +125,23 @@ public class GUI extends JFrame{
             gbc.gridx = gridNum1;
             gbc.gridy = gridNum2;
         }
-        groupboxes.addItem(Food.TypeOfDiet.ALLA);
-        groupboxes.addItem(Food.TypeOfDiet.MEAT);
-        groupboxes.addItem(Food.TypeOfDiet.VEGETARIAN);
-        groupboxes.addItem(Food.TypeOfDiet.VEGAN);
+        groupboxes.addItem(Food.TypeOfFood.ALLA);
+        groupboxes.addItem(Food.TypeOfFood.MEAT);
+        groupboxes.addItem(Food.TypeOfFood.VEGETARIAN);
+        groupboxes.addItem(Food.TypeOfFood.VEGAN);
         groupboxes.setSelectedIndex(0);
     }
 
     public void SortingSpace(Object selectedType) {
-        ArrayList<Consumable> sortedFoodList;
+        //ArrayList<Food> sortedFoodList;
         Filter filter = new Filter();
         sortedFoodList = filter.TypeOfFoodFilter(consumableArrayList,
                 selectedType);
+        consumableArrayList = sortedFoodList;
         //Collections.shuffle(sortedFoodList);
-        showDishLabel.setText(sortedFoodList.get(0).name);
-        showTimeLabel.setText("Tillagningstid: " + sortedFoodList.get(0).timeToPrepare + " minuter");
-        showTypeLabel.setText("Typ: "+sortedFoodList.get(0).getType());
+        showDishLabel.setText(consumableArrayList.get(0).name);
+        showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+        showTypeLabel.setText("Typ: "+ consumableArrayList.get(0).dietType);
         cards.show(mainPanel,"showrecipe");
     }
 
@@ -150,14 +151,14 @@ public class GUI extends JFrame{
             Collections.shuffle(consumableArrayList);
             showDishLabel.setText(consumableArrayList.get(0).name);
             showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
-            showTypeLabel.setText("Typ: " + consumableArrayList.get(0).getType());
+            showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
             cards.show(mainPanel,"second");
         });
 
         addConsumableButton.addActionListener(e -> cards.show(mainPanel,"addfood"));
 
         addFoodButton.addActionListener(e->{
-            Consumable newFood = new Food(addNameTextArea.getText(),Integer.parseInt(addTimeTextArea.getText()));
+            Food newFood = new Food(addNameTextArea.getText(),Integer.parseInt(addTimeTextArea.getText()));
             newFood.setType(addTypeOfFoodDropBox.getSelectedItem());
             consumableArrayList.add(newFood);
             FileHandler.writeListToFile(consumableArrayList);
@@ -174,22 +175,26 @@ public class GUI extends JFrame{
         });
 
         refreshConsumableButton.addActionListener(e -> {
-
-
-
             Collections.shuffle(consumableArrayList);
             if (showTypeOfFoodBox.getSelectedIndex() == 0) {
+                consumableArrayList = FileHandler.readListFromFile();
                 Collections.shuffle(consumableArrayList);
                 showDishLabel.setText(consumableArrayList.get(0).name);
                 showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
-                showTypeLabel.setText("Typ: " + consumableArrayList.get(0).getType());
+                showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
                 //System.out.println("Type of object at index 0: " + consumableArrayList.get(0).getClass().getSimpleName());
                 cards.show(mainPanel,"showrecipe");
             } else if (showTypeOfFoodBox.getSelectedIndex() == 1) {
+                consumableArrayList = FileHandler.readListFromFile();
+                Collections.shuffle(consumableArrayList);
                 SortingSpace(showTypeOfFoodBox.getSelectedItem());
             } else if (showTypeOfFoodBox.getSelectedIndex() == 2) {
+                consumableArrayList = FileHandler.readListFromFile();
+                Collections.shuffle(consumableArrayList);
                 SortingSpace(showTypeOfFoodBox.getSelectedItem());
             } else if (showTypeOfFoodBox.getSelectedIndex() == 3) {
+                consumableArrayList = FileHandler.readListFromFile();
+                Collections.shuffle(consumableArrayList);
                 SortingSpace(showTypeOfFoodBox.getSelectedItem());
             }
 
@@ -197,11 +202,26 @@ public class GUI extends JFrame{
 
         refreshBySortingTimeButton.addActionListener(e -> {
             Filter filter = new Filter();
-            ArrayList<Consumable> filteredList = filter.FilterByTime(consumableArrayList);
-            showDishLabel.setText(filteredList.get(0).name);
-            showTimeLabel.setText("Tillagningstid: " + filteredList.get(0).timeToPrepare + " minuter");
-            showTypeLabel.setText("Typ: " + filteredList.get(0));
-            cards.show(mainPanel,"showrecipe");
+            if (showTypeOfFoodBox.getSelectedIndex() == 0)  {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                showDishLabel.setText(consumableArrayList.get(0).name);
+                showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+                showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 1) {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 2) {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 3) {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+                cards.show(mainPanel, "showrecipe");
+            }
         });
 
         searchRecipeButton.addActionListener(e->{

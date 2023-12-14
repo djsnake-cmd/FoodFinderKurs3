@@ -4,15 +4,15 @@ import java.util.concurrent.Callable;
 
 public class Filter {
 
-    public ArrayList<Consumable> FilterByTime(ArrayList<Consumable> consumableList) {
+    public ArrayList<Food> FilterByTime(ArrayList<Food> consumableList) {
         consumableList.sort(Comparator.comparingInt(Consumable::getTimeToPrepare));
         return consumableList;
     }
 
-    public ArrayList<Consumable> TypeOfFoodFilter(ArrayList<Consumable> consumableArrayList, Object getType) {
-        ArrayList<Consumable> aSpecificTypeOfFood = new ArrayList<>();
-        for (Consumable consumable : consumableArrayList) {
-             if (Objects.toString(getType).equals(Objects.toString(consumable.getType()))) {
+    public ArrayList<Food> TypeOfFoodFilter(ArrayList<Food> consumableArrayList, Object getType) {
+        ArrayList<Food> aSpecificTypeOfFood = new ArrayList<>();
+        for (Food consumable : consumableArrayList) {
+             if (Objects.toString(getType).equals(Objects.toString(consumable.dietType))) {
                  aSpecificTypeOfFood.add(consumable);
             }
         }

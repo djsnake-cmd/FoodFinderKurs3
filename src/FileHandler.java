@@ -6,7 +6,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class FileHandler {
 
-    public static void writeListToFile(ArrayList<Consumable> consumableList) {
+    public static void writeListToFile(ArrayList<Food> consumableList) {
         Gson gson = new Gson();
         try (FileWriter writer = new FileWriter("src/Consumable.ser")) {
             gson.toJson(consumableList,writer);
@@ -15,19 +15,19 @@ public class FileHandler {
         }
     }
 
-    public static ArrayList<Consumable> readListFromFile(){
+    public static ArrayList<Food> readListFromFile(){
         Gson gson = new Gson();
         try(FileReader reader = new FileReader("src/Consumable.ser")){
-            return gson.fromJson(reader, new TypeToken<List<Consumable>>(){}.getType());
+            return gson.fromJson(reader, new TypeToken<List<Food>>(){}.getType());
         }catch (IOException e){
             e.printStackTrace();
         }
         return new ArrayList<>();
     }
     public static void main(String[] args) {
-        Consumable c = new Consumable("carbonara",10);
-        c.setType(Food.TypeOfDiet.MEAT);
-        ArrayList<Consumable> list = new ArrayList<>();
+        Food c = new Food("carbonara",10);
+        c.setType(Food.TypeOfFood.MEAT);
+        ArrayList<Food> list = new ArrayList<>();
         list.add(c);
         writeListToFile(list);
         //System.out.println(readObjektFromFile().get(1).name);
