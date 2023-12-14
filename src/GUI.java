@@ -7,82 +7,74 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+
 public class GUI extends JFrame{
+
     JPanel mainPanel;
     JButton foodButton = new JButton("Mat");
     JButton drinkButton = new JButton("Dryck");
+
     JButton getConsumableButton = new JButton("Hämta");
     JButton refreshConsumableButton = new JButton("Sök igen");
+    JButton refreshBySortingTimeButton = new JButton("Sök minsta tillagningstid");
     JButton addConsumableButton = new JButton("Lägg till");
+
     JLabel addNameLabel =  new JLabel("Namn:");
     JLabel addTimeLabel = new JLabel("Tillagningstid:");
+    JLabel addTypeOfFood = new JLabel("Typ: ");
+
     JLabel showDishLabel = new JLabel();
     JLabel showTimeLabel = new JLabel();
-    Font textFont = new Font("Verdana",Font.BOLD,16);
-    Font smallerFont = new Font("Verdana",Font.BOLD,12);
+    JLabel showTypeLabel = new JLabel("Typ: ");
     JTextArea addNameTextArea = new JTextArea(2,10);
     JTextArea addTimeTextArea = new JTextArea(2,10);
+    JComboBox<Food.TypeOfFood> addTypeOfFoodDropBox = new JComboBox<>();
+    JComboBox<Food.TypeOfFood> showTypeOfFoodBox = new JComboBox<>();
     JButton searchRecipeButton = new JButton("Sök recept");
     JButton addFoodButton = new JButton("Lägg till");
     JButton backToMainButton = new JButton("Tillbaka");
-    JButton removeButton = new JButton("Ta bort maträtt");
-    JButton showAllFoodsButton = new JButton("Visa alla rätter");
-    JTextArea showAllFoodsText = new JTextArea();
-    JScrollPane showAllFoodsSP = new JScrollPane(showAllFoodsText);
-    JButton backFromShowAllButton = new JButton("Tillbaka");
     CardLayout cards;
     Desktop desktop;
-    Color backgroundColor = new Color(255,51,51);
-    Color secondaryColor = new Color(255,255,153);
 
-    ArrayList<Consumable> consumableArrayList;
-
+    ArrayList<Food> consumableArrayList;
+    ArrayList<Food> sortedFoodList;
 
     public GUI(){
-        FileHandler.getInstance();
+        ArrayList<Food> sortedFoodList;
 
         cards = new CardLayout();
         mainPanel = new JPanel(cards);
+
         consumableArrayList = FileHandler.readListFromFile();
         createPanels();
         addActionListeners();
         desktop = Desktop.getDesktop();
-
         this.add(mainPanel);
+
+
         this.setVisible(true);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(400,400);
     }
 
     private void createPanels() {
-        mainPanel.setBackground(backgroundColor);
         //STARTPANEL
-        JPanel startPanel = new JPanel(new FlowLayout());
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        startPanel.setBackground(backgroundColor);
-        centerPanel.setBackground(backgroundColor);
-        centerPanel.add(startPanel);
+        JPanel startPanel = new JPanel();
+        startPanel.setLayout(new GridLayout(2,1));
+
         startPanel.add(foodButton);
         startPanel.add(drinkButton);
-        foodButton.setFont(textFont);
-        drinkButton.setFont(textFont);
-        mainPanel.add(centerPanel, "home");
+        mainPanel.add(startPanel, "first");
 
-        //Hämta eller lägg till mat
-        JPanel secondPanel = new JPanel(new FlowLayout());
-        JPanel sndcenterPanel = new JPanel(new GridBagLayout());
-        sndcenterPanel.add(secondPanel);
-        sndcenterPanel.setBackground(backgroundColor);
-        secondPanel.setBackground(backgroundColor);
+        JPanel secondPanel = new JPanel();
+        secondPanel.setLayout(new GridLayout(2,1));
+
         secondPanel.add(addConsumableButton);
         secondPanel.add(getConsumableButton);
-        addConsumableButton.setFont(textFont);
-        getConsumableButton.setFont(textFont);
-        mainPanel.add(sndcenterPanel,"addorget");
+        mainPanel.add(secondPanel,"second");
 
         //LÄGG TILL MATRÄTT
         JPanel addFoodPanel = new JPanel(new GridBagLayout());
-        addFoodPanel.setBackground(backgroundColor);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -95,93 +87,141 @@ public class GUI extends JFrame{
         gbc.gridx = 1;
         addFoodPanel.add(addTimeTextArea,gbc);
         gbc.gridx = 0; gbc.gridy = 2;
+        addFoodPanel.add(addTypeOfFood, gbc);
+        gbc.gridx = 1;
+        addDropBox(addFoodPanel, gbc, 0, 3, addTypeOfFoodDropBox);
+        addTypeOfFoodDropBox.removeItemAt(0);
         addFoodPanel.add(addFoodButton,gbc);
-
-        addNameLabel.setFont(textFont);
-        addTimeLabel.setFont(textFont);
-        addFoodButton.setFont(textFont);
         mainPanel.add(addFoodPanel,"addfood");
 
         //VISA RECEPT
         JPanel showFoodPanel = new JPanel(new GridBagLayout());
-        showFoodPanel.setBackground(backgroundColor);
         gbc.gridy = 0;
+        addDropBox(showFoodPanel, gbc, null,1, showTypeOfFoodBox);
         showFoodPanel.add(showDishLabel,gbc);
-        gbc.gridy = 1;
-        showFoodPanel.add(showTimeLabel,gbc);
         gbc.gridy = 2;
-        showFoodPanel.add(refreshConsumableButton,gbc);
+        showFoodPanel.add(showTimeLabel,gbc);
         gbc.gridy = 3;
-        showFoodPanel.add(searchRecipeButton,gbc);
+        showFoodPanel.add(showTypeLabel, gbc);
         gbc.gridy = 4;
-        showFoodPanel.add(removeButton,gbc);
+        showFoodPanel.add(refreshConsumableButton,gbc);
         gbc.gridy = 5;
-        showFoodPanel.add(showAllFoodsButton,gbc);
+        showFoodPanel.add(refreshBySortingTimeButton, gbc);
         gbc.gridy = 6;
+        showFoodPanel.add(searchRecipeButton,gbc);
+        gbc.gridy = 7;
         showFoodPanel.add(backToMainButton,gbc);
-
-        showDishLabel.setFont(textFont);
-        showTimeLabel.setFont(textFont);
-        refreshConsumableButton.setFont(textFont);
-        searchRecipeButton.setFont(textFont);
-        removeButton.setFont(textFont);
-        showAllFoodsButton.setFont(textFont);
-        backToMainButton.setFont(textFont);
-
         mainPanel.add(showFoodPanel,"showrecipe");
-
-        //VISA ALLA MATRÄTTER
-        JPanel showAllFoodsPanel = new JPanel(new BorderLayout());
-        showAllFoodsPanel.setBackground(backgroundColor);
-        showAllFoodsPanel.add(backFromShowAllButton,BorderLayout.NORTH);
-        backFromShowAllButton.setFont(textFont);
-        showAllFoodsText.setFont(smallerFont);
-        showAllFoodsText.setLineWrap(true);
-        showAllFoodsText.setWrapStyleWord(true);
-        showAllFoodsText.setBackground(secondaryColor);
-        showAllFoodsSP.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        showAllFoodsPanel.add(showAllFoodsSP,BorderLayout.CENTER);
-        mainPanel.add(showAllFoodsPanel,"showallfoods");
     }
+
+    private void addDropBox(JPanel panel, GridBagConstraints gbc, Integer gridNum1, Integer gridNum2,
+                            JComboBox<Food.TypeOfFood> groupboxes) {
+        panel.add(groupboxes, gbc);
+        if (gridNum1 == null) {
+            gbc.gridy = gridNum2;
+        } else if (gridNum2 == null) {
+            gbc.gridx = gridNum1;
+        } else {
+            gbc.gridx = gridNum1;
+            gbc.gridy = gridNum2;
+        }
+        groupboxes.addItem(Food.TypeOfFood.ALLA);
+        groupboxes.addItem(Food.TypeOfFood.MEAT);
+        groupboxes.addItem(Food.TypeOfFood.VEGETARIAN);
+        groupboxes.addItem(Food.TypeOfFood.VEGAN);
+        groupboxes.setSelectedIndex(0);
+    }
+
+    public void SortingSpace(Object selectedType) {
+        //ArrayList<Food> sortedFoodList;
+        Filter filter = new Filter();
+        sortedFoodList = filter.TypeOfFoodFilter(consumableArrayList,
+                selectedType);
+        consumableArrayList = sortedFoodList;
+        //Collections.shuffle(sortedFoodList);
+        showDishLabel.setText(consumableArrayList.get(0).name);
+        showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+        showTypeLabel.setText("Typ: "+ consumableArrayList.get(0).dietType);
+        cards.show(mainPanel,"showrecipe");
+    }
+
 
     private void addActionListeners(){
         foodButton.addActionListener(e-> {
             Collections.shuffle(consumableArrayList);
-            showDishLabel.setText("Maträtt: " +
-                    consumableArrayList.get(0).name);
-            showTimeLabel.setText("Tillagningstid: " +
-                    consumableArrayList.get(0).timeToPrepare + " minuter");
-            cards.show(mainPanel,"addorget");
+            showDishLabel.setText(consumableArrayList.get(0).name);
+            showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+            showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
+            cards.show(mainPanel,"second");
         });
 
         addConsumableButton.addActionListener(e -> cards.show(mainPanel,"addfood"));
 
         addFoodButton.addActionListener(e->{
-            Consumable newFood = new Consumable(addNameTextArea.getText(),
-                    Integer.parseInt(addTimeTextArea.getText()));
+            Food newFood = new Food(addNameTextArea.getText(),Integer.parseInt(addTimeTextArea.getText()));
+            newFood.setType(addTypeOfFoodDropBox.getSelectedItem());
             consumableArrayList.add(newFood);
             FileHandler.writeListToFile(consumableArrayList);
-            cards.show(mainPanel,"home");
+            cards.show(mainPanel,"first");
             addNameTextArea.setText("");
             addTimeTextArea.setText("");
+
         });
 
         getConsumableButton.addActionListener(e-> {
+            //consumableArrayList = FileHandler.readObjektFromFile();
             Collections.shuffle(consumableArrayList);
-            showDishLabel.setText("Maträtt: "
-                    + consumableArrayList.get(0).name);
-            showTimeLabel.setText("Tillagningstid: "
-                    + consumableArrayList.get(0).timeToPrepare + " minuter");
             cards.show(mainPanel,"showrecipe");
         });
 
         refreshConsumableButton.addActionListener(e -> {
             Collections.shuffle(consumableArrayList);
-            showDishLabel.setText("Maträtt: "
-                    + consumableArrayList.get(0).name);
-            showTimeLabel.setText("Tillagningstid: "
-                    + consumableArrayList.get(0).timeToPrepare + " minuter");
-            cards.show(mainPanel,"showrecipe");
+            if (showTypeOfFoodBox.getSelectedIndex() == 0) {
+                consumableArrayList = FileHandler.readListFromFile();
+                Collections.shuffle(consumableArrayList);
+                showDishLabel.setText(consumableArrayList.get(0).name);
+                showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+                showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
+                //System.out.println("Type of object at index 0: " + consumableArrayList.get(0).getClass().getSimpleName());
+                cards.show(mainPanel,"showrecipe");
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 1) {
+                consumableArrayList = FileHandler.readListFromFile();
+                Collections.shuffle(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 2) {
+                consumableArrayList = FileHandler.readListFromFile();
+                Collections.shuffle(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 3) {
+                consumableArrayList = FileHandler.readListFromFile();
+                Collections.shuffle(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            }
+
+        });
+
+        refreshBySortingTimeButton.addActionListener(e -> {
+            Filter filter = new Filter();
+            if (showTypeOfFoodBox.getSelectedIndex() == 0)  {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                showDishLabel.setText(consumableArrayList.get(0).name);
+                showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+                showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 1) {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 2) {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+            } else if (showTypeOfFoodBox.getSelectedIndex() == 3) {
+                consumableArrayList = FileHandler.readListFromFile();
+                consumableArrayList = filter.FilterByTime(consumableArrayList);
+                SortingSpace(showTypeOfFoodBox.getSelectedItem());
+                cards.show(mainPanel, "showrecipe");
+            }
         });
 
         searchRecipeButton.addActionListener(e->{
@@ -195,26 +235,7 @@ public class GUI extends JFrame{
         });
 
         backToMainButton.addActionListener(e->{
-            cards.show(mainPanel,"home");
-        });
-
-        removeButton.addActionListener(e-> {
-            System.out.println("Du tog bort: " + consumableArrayList.get(0).name);
-            consumableArrayList.remove(0);
-            FileHandler.writeListToFile(consumableArrayList);
-        });
-
-        showAllFoodsButton.addActionListener(e->{
-            StringBuilder sb = new StringBuilder();
-            for (Consumable consumable: consumableArrayList) {
-                showAllFoodsText.setText(String.valueOf(sb.append(consumable.name
-                        + "\n" + consumable.timeToPrepare + " minuter" + "\n"+"\n")));
-            }
-            cards.show(mainPanel,"showallfoods");
-        });
-
-        backFromShowAllButton.addActionListener(e -> {
-            cards.show(mainPanel,"home");
+            cards.show(mainPanel,"first");
         });
 
     }
@@ -222,6 +243,6 @@ public class GUI extends JFrame{
 
 
     public static void main(String[] args) {
-        //GUI g = new GUI();
+        GUI g = new GUI();
     }
 }
