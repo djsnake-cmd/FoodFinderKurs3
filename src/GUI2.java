@@ -32,6 +32,7 @@ public class GUI2 extends JFrame {
     JLabel addTypeOfFood = new JLabel("Typ: ");
     JLabel showTypeLabel = new JLabel("Typ: ");
     private JTextArea showAllFoodsText = new JTextArea();
+    private JButton refreshBySortingTimeButton = new JButton("Sök minsta tillagningstid");
     private JTextArea addNameTextArea = new JTextArea(2,10);
     private JTextArea addTimeTextArea = new JTextArea(2,10);
     JScrollPane showAllFoodsSP = new JScrollPane(showAllFoodsText);
@@ -78,6 +79,7 @@ public class GUI2 extends JFrame {
     }
 
     private void addFood() {
+        consumableArrayList = FileHandler.readListFromFile();
         Food newFood = new Food(addNameTextArea.getText(),
                 Integer.parseInt(addTimeTextArea.getText()));
         newFood.setType(addTypeOfFoodDropBox.getSelectedItem());
@@ -122,7 +124,7 @@ public class GUI2 extends JFrame {
         if (showTypeOfFoodBox.getSelectedIndex() == 0) {
             consumableArrayList = FileHandler.readListFromFile();
             Collections.shuffle(consumableArrayList);
-            showDishLabel.setText(consumableArrayList.get(0).name);
+            showDishLabel.setText("Maträtt: " + consumableArrayList.get(0).name);
             showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
             showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
             //System.out.println("Type of object at index 0: " + consumableArrayList.get(0).getClass().getSimpleName());
@@ -142,12 +144,35 @@ public class GUI2 extends JFrame {
         }
 
     }
+    private void refreshByLowestTimeFood() {
+        Filter filter = new Filter();
+        if (showTypeOfFoodBox.getSelectedIndex() == 0)  {
+            consumableArrayList = FileHandler.readListFromFile();
+            consumableArrayList = filter.FilterByTime(consumableArrayList);
+            showDishLabel.setText("Maträtt: " + consumableArrayList.get(0).name);
+            showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
+            showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
+            cards.show(mainPanel, "showrecipe");
+        } else if (showTypeOfFoodBox.getSelectedIndex() == 1) {
+            consumableArrayList = FileHandler.readListFromFile();
+            consumableArrayList = filter.FilterByTime(consumableArrayList);
+            SortingSpace(showTypeOfFoodBox.getSelectedItem());
+        } else if (showTypeOfFoodBox.getSelectedIndex() == 2) {
+            consumableArrayList = FileHandler.readListFromFile();
+            consumableArrayList = filter.FilterByTime(consumableArrayList);
+            SortingSpace(showTypeOfFoodBox.getSelectedItem());
+        } else if (showTypeOfFoodBox.getSelectedIndex() == 3) {
+            consumableArrayList = FileHandler.readListFromFile();
+            consumableArrayList = filter.FilterByTime(consumableArrayList);
+            SortingSpace(showTypeOfFoodBox.getSelectedItem());
+        }
+    }
 
     private void createShowRecipePanel() {
         JPanel showFoodPanel = new JPanel(new GridBagLayout());
         showFoodPanel.setBackground(BACKGROUND_COLOR);
         gbc.gridy = 0;
-        addDropBox(showFoodPanel, showTypeOfFoodBox);
+        addDropBox(showFoodPanel, showTypeOfFoodBox, gbc);
         gbc.gridy = 1;
         showFoodPanel.add(showDishLabel,gbc);
         showDishLabel.setFont(SMALLER_FONT);
@@ -157,17 +182,19 @@ public class GUI2 extends JFrame {
         gbc.gridy = 3;
         showFoodPanel.add(createButton("Sök igen",TEXT_FONT,e->refreshFood()),gbc);
         gbc.gridy = 4;
-        showFoodPanel.add(createButton("Sök recept",TEXT_FONT,e->searchRecipe()),gbc);
+        showFoodPanel.add(createButton(refreshBySortingTimeButton.getText(), TEXT_FONT,e->refreshByLowestTimeFood()), gbc);
         gbc.gridy = 5;
-        showFoodPanel.add(createButton("Ta bort maträtt",TEXT_FONT,e->removeFood()),gbc);
+        showFoodPanel.add(createButton("Sök recept",TEXT_FONT,e->searchRecipe()),gbc);
         gbc.gridy = 6;
-        showFoodPanel.add(createButton("Visa alla maträtter",TEXT_FONT,e->showAllFoods()),gbc);
+        showFoodPanel.add(createButton("Ta bort maträtt",TEXT_FONT,e->removeFood()),gbc);
         gbc.gridy = 7;
+        showFoodPanel.add(createButton("Visa alla maträtter",TEXT_FONT,e->showAllFoods()),gbc);
+        gbc.gridy = 8;
         showFoodPanel.add(createButton("Tillbaka",TEXT_FONT,e->backToStart()),gbc);
         mainPanel.add(showFoodPanel,"showrecipe");
     }
-    private void addDropBox(JPanel panel,JComboBox<Food.TypeOfFood> groupboxes) {
-        panel.add(groupboxes);
+    private void addDropBox(JPanel panel,JComboBox<Food.TypeOfFood> groupboxes, GridBagConstraints gbc) {
+        panel.add(groupboxes, gbc);
         groupboxes.addItem(Food.TypeOfFood.ALLA);
         groupboxes.addItem(Food.TypeOfFood.MEAT);
         groupboxes.addItem(Food.TypeOfFood.VEGETARIAN);
@@ -181,7 +208,7 @@ public class GUI2 extends JFrame {
                 selectedType);
         consumableArrayList = sortedFoodList;
         //Collections.shuffle(sortedFoodList);
-        showDishLabel.setText(consumableArrayList.get(0).name);
+        showDishLabel.setText("Maträtt: " + consumableArrayList.get(0).name);
         showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
         showTypeLabel.setText("Typ: "+ consumableArrayList.get(0).dietType);
         cards.show(mainPanel,"showrecipe");
@@ -201,13 +228,12 @@ public class GUI2 extends JFrame {
         addTimeLabel.setFont(SMALLER_FONT);
         gbc.gridx = 1;
         addFoodPanel.add(addTimeTextArea,gbc);
-        gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = 2;
         addFoodPanel.add(addTypeOfFood, gbc);
         gbc.gridx = 1;
-
-        addDropBox(addFoodPanel,addTypeOfFoodDropBox);
-        addTypeOfFoodDropBox.removeItemAt(0);
+        addDropBox(addFoodPanel,addTypeOfFoodDropBox, gbc);
         gbc.gridx = 0; gbc.gridy = 3;
+        addTypeOfFoodDropBox.removeItemAt(0);
         addFoodPanel.add(createButton("Lägg till maträtt",TEXT_FONT,e->addFood()),gbc);
         mainPanel.add(addFoodPanel,ADD_FOOD_CARD);
     }

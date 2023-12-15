@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 public class Filter {
 
     public ArrayList<Food> FilterByTime(ArrayList<Food> consumableList) {
+        Collections.shuffle(consumableList);
         consumableList.sort(Comparator.comparingInt(Consumable::getTimeToPrepare));
         return consumableList;
     }
