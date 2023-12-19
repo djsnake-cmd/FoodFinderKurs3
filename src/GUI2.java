@@ -202,7 +202,6 @@ public class GUI2 extends JFrame {
         groupboxes.setSelectedIndex(0);
     }
     public void SortingSpace(Object selectedType) {
-        //ArrayList<Food> sortedFoodList;
         Filter filter = new Filter();
         sortedFoodList = filter.TypeOfFoodFilter(consumableArrayList,
                 selectedType);

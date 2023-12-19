@@ -24,22 +24,6 @@ public class Food extends Consumable implements Comparable<Food>{
         super.setType(type);
         dietType = type;
     }
-
-    public String getName() {
-        return name;
-    }
-    @Override
-    public String getType() {
-        if (dietType == TypeOfFood.VEGAN) {
-            typeOfFood = TypeOfFood.VEGAN;
-        } else if (dietType == TypeOfFood.VEGETARIAN) {
-            typeOfFood = TypeOfFood.VEGETARIAN;
-        } else if (dietType == TypeOfFood.MEAT) {
-            typeOfFood = TypeOfFood.MEAT;
-            System.out.println(typeOfFood);
-        }
-        return Objects.toString(typeOfFood);
-    }
     public int getTimeToPrepare() {
         return timeToPrepare;
     }
