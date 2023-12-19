@@ -226,13 +226,12 @@ public class GUI2 extends JFrame {
         addTimeLabel.setFont(SMALLER_FONT);
         gbc.gridx = 1;
         addFoodPanel.add(addTimeTextArea,gbc);
-        gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = 2;
         addFoodPanel.add(addTypeOfFood, gbc);
         gbc.gridx = 1;
-
-        addDropBox(addFoodPanel,addTypeOfFoodDropBox);
-        addTypeOfFoodDropBox.removeItemAt(0);
+        addDropBox(addFoodPanel,addTypeOfFoodDropBox, gbc);
         gbc.gridx = 0; gbc.gridy = 3;
+        addTypeOfFoodDropBox.removeItemAt(0);
         addFoodPanel.add(createButton("Lägg till maträtt",TEXT_FONT,e->addFood()),gbc);
         mainPanel.add(addFoodPanel,ADD_FOOD_CARD);
     }
