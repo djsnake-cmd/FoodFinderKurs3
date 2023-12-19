@@ -41,8 +41,10 @@ public class GUI2 extends JFrame {
     ArrayList<Food> sortedFoodList;
     GridBagConstraints gbc = new GridBagConstraints();
 
+    private FoodManager foodManager;
 
     public GUI2() {
+        foodManager = new FoodManager();
         FileHandler.getInstance();
         initializeFrame();
         initializeComponents();
@@ -81,8 +83,8 @@ public class GUI2 extends JFrame {
         Food newFood = new Food(addNameTextArea.getText(),
                 Integer.parseInt(addTimeTextArea.getText()));
         newFood.setType(addTypeOfFoodDropBox.getSelectedItem());
-        consumableArrayList.add(newFood);
-        FileHandler.writeListToFile(consumableArrayList);
+        foodManager.addFood(newFood);
+
         cards.show(mainPanel,"home");
         addNameTextArea.setText("");
         addTimeTextArea.setText("");
@@ -175,17 +177,17 @@ public class GUI2 extends JFrame {
         groupboxes.setSelectedIndex(0);
     }
     public void SortingSpace(Object selectedType) {
-        //ArrayList<Food> sortedFoodList;
         Filter filter = new Filter();
         sortedFoodList = filter.TypeOfFoodFilter(consumableArrayList,
                 selectedType);
         consumableArrayList = sortedFoodList;
-        //Collections.shuffle(sortedFoodList);
         showDishLabel.setText(consumableArrayList.get(0).name);
         showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
         showTypeLabel.setText("Typ: "+ consumableArrayList.get(0).dietType);
         cards.show(mainPanel,"showrecipe");
     }
+
+    //PANELER
     private void createAddFoodPanel() {
         JPanel addFoodPanel = new JPanel(new GridBagLayout());
         addFoodPanel.setBackground(BACKGROUND_COLOR);
