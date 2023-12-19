@@ -1,3 +1,4 @@
+/*
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -246,3 +247,4 @@ public class GUI extends JFrame{
         GUI g = new GUI();
     }
 }
+*/

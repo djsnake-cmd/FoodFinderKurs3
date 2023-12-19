@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class GUI2 extends JFrame {
     // Constants
@@ -20,6 +21,7 @@ public class GUI2 extends JFrame {
     private static final Font SMALLER_FONT = new Font("Verdana", Font.BOLD, 12);
     private static final Color BACKGROUND_COLOR = new Color(255, 51, 51);
     private static final Color SECONDARY_COLOR = new Color(255, 255, 153);
+    private JLabel emptyStyleLabel = new JLabel();
 
     // UI Components
     private JPanel mainPanel;
@@ -38,7 +40,8 @@ public class GUI2 extends JFrame {
     private CardLayout cards;
     private Desktop desktop;
     private ArrayList<Food> consumableArrayList;
-    ArrayList<Food> sortedFoodList;
+    private JTextField setTimeTextArea = new JTextField(5);
+
     GridBagConstraints gbc = new GridBagConstraints();
 
     private FoodManager foodManager;
@@ -54,7 +57,7 @@ public class GUI2 extends JFrame {
     private void initializeFrame() {
         cards = new CardLayout();
         mainPanel = new JPanel(cards);
-        consumableArrayList = FileHandler.readListFromFile();
+        consumableArrayList = foodManager.getList();
         desktop = Desktop.getDesktop();
         this.add(mainPanel);
         this.setVisible(true);
@@ -71,11 +74,8 @@ public class GUI2 extends JFrame {
     }
 
     private void getFood() {
-        Collections.shuffle(consumableArrayList);
-        showDishLabel.setText("Maträtt: "
-                + consumableArrayList.get(0).name);
-        showTimeLabel.setText("Tillagningstid: "
-                + consumableArrayList.get(0).timeToPrepare + " minuter");
+        foodManager.refreshList();
+        updateFoodDisplay(foodManager.getFood());
         cards.show(mainPanel,"showrecipe");
     }
 
@@ -83,6 +83,7 @@ public class GUI2 extends JFrame {
         Food newFood = new Food(addNameTextArea.getText(),
                 Integer.parseInt(addTimeTextArea.getText()));
         newFood.setType(addTypeOfFoodDropBox.getSelectedItem());
+
         foodManager.addFood(newFood);
 
         cards.show(mainPanel,"home");
@@ -91,8 +92,7 @@ public class GUI2 extends JFrame {
     }
 
     private void searchRecipe() {
-        String encodedQuery = URLEncoder.encode(consumableArrayList.get(0).name + " recept", StandardCharsets.UTF_8);
-        String searchURL = "https://www.google.com/search?q=" + encodedQuery;
+        String searchURL = foodManager.getFirstFoodSearchURL();
         try {
             desktop.browse(new URI(searchURL));
         } catch (IOException | URISyntaxException ex) {
@@ -105,44 +105,55 @@ public class GUI2 extends JFrame {
     }
 
     private void showAllFoods() {
-        StringBuilder sb = new StringBuilder();
-        for (Consumable consumable: consumableArrayList) {
-            showAllFoodsText.setText(String.valueOf(sb.append(consumable.name
-                    + "\n" + consumable.timeToPrepare + " minuter" + "\n"+"\n")));
-        }
-        cards.show(mainPanel,SHOW_ALL_FOODS_CARD);
+        Food.TypeOfFood selectedType = (Food.TypeOfFood) showTypeOfFoodBox.getSelectedItem();
+        String allFoodsFormatted = foodManager.getAllFoods(selectedType);
+        showAllFoodsText.setText(allFoodsFormatted);
+        cards.show(mainPanel, SHOW_ALL_FOODS_CARD);
     }
 
     private void removeFood() {
-        System.out.println("Du tog bort: " + consumableArrayList.get(0).name);
-        consumableArrayList.remove(0);
-        FileHandler.writeListToFile(consumableArrayList);
+        foodManager.removeFood(consumableArrayList.remove(0));
+        showDishLabel.setText("");
+        showTimeLabel.setText("");
     }
 
-    private void refreshFood() {
-        Collections.shuffle(consumableArrayList);
-        if (showTypeOfFoodBox.getSelectedIndex() == 0) {
-            consumableArrayList = FileHandler.readListFromFile();
-            Collections.shuffle(consumableArrayList);
-            showDishLabel.setText(consumableArrayList.get(0).name);
-            showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
-            showTypeLabel.setText("Typ: " + consumableArrayList.get(0).dietType);
-            //System.out.println("Type of object at index 0: " + consumableArrayList.get(0).getClass().getSimpleName());
-            cards.show(mainPanel,"showrecipe");
-        } else if (showTypeOfFoodBox.getSelectedIndex() == 1) {
-            consumableArrayList = FileHandler.readListFromFile();
-            Collections.shuffle(consumableArrayList);
-            SortingSpace(showTypeOfFoodBox.getSelectedItem());
-        } else if (showTypeOfFoodBox.getSelectedIndex() == 2) {
-            consumableArrayList = FileHandler.readListFromFile();
-            Collections.shuffle(consumableArrayList);
-            SortingSpace(showTypeOfFoodBox.getSelectedItem());
-        } else if (showTypeOfFoodBox.getSelectedIndex() == 3) {
-            consumableArrayList = FileHandler.readListFromFile();
-            Collections.shuffle(consumableArrayList);
-            SortingSpace(showTypeOfFoodBox.getSelectedItem());
-        }
+    private void refreshFood(){
+        foodManager.refreshList();
+        Food firstFood = null;
 
+        switch (showTypeOfFoodBox.getSelectedIndex()) {
+            case 0: // ALL Foods
+                firstFood = foodManager.getFood();
+                break;
+            case 1: // MEAT
+                ArrayList<Food> meatFoods = foodManager.getFilteredFoodByType(Food.TypeOfFood.MEAT);
+                if (!meatFoods.isEmpty()) {
+                    firstFood = meatFoods.get(0);
+                }
+                break;
+            case 2: // VEGETARIAN
+                ArrayList<Food> vegetarianFoods = foodManager.getFilteredFoodByType(Food.TypeOfFood.VEGETARIAN);
+                if (!vegetarianFoods.isEmpty()) {
+                    firstFood = vegetarianFoods.get(0);
+                }
+                break;
+            case 3: // VEGAN
+                ArrayList<Food> veganFoods = foodManager.getFilteredFoodByType(Food.TypeOfFood.VEGAN);
+                if (!veganFoods.isEmpty()) {
+                    firstFood = veganFoods.get(0);
+                }
+                break;
+            default:
+                break;
+
+        }
+        updateFoodDisplay(firstFood);
+        System.out.println(firstFood.name);
+    }
+    public void updateFoodDisplay(Food food){
+        showDishLabel.setText("Maträtt: " + food.getName());
+        showTimeLabel.setText("Tillagningstid: " + food.getTimeToPrepare());
+        showTypeLabel.setText("Typ: " + food.getType());
     }
 
     private void createShowRecipePanel() {
@@ -166,8 +177,28 @@ public class GUI2 extends JFrame {
         showFoodPanel.add(createButton("Visa alla maträtter",TEXT_FONT,e->showAllFoods()),gbc);
         gbc.gridy = 7;
         showFoodPanel.add(createButton("Tillbaka",TEXT_FONT,e->backToStart()),gbc);
+        gbc.gridy = 8;
+        showFoodPanel.add(createButton("Sortera efter tid",TEXT_FONT,e->searchByTime()),gbc);
+        gbc.gridy = 9;
+        showFoodPanel.add(setTimeTextArea,gbc);
+
         mainPanel.add(showFoodPanel,"showrecipe");
     }
+
+    private void searchByTime() {
+        consumableArrayList = foodManager.refreshAndSortByTime(Integer.parseInt(setTimeTextArea.getText()));
+        foodManager.refreshList();
+
+        Random random = new Random();
+        int randomIndex = random.nextInt(consumableArrayList.size());
+
+        Food firstFood = consumableArrayList.get(randomIndex);
+
+        updateFoodDisplay(firstFood);
+        System.out.println(firstFood.name);
+
+    }
+
     private void addDropBox(JPanel panel,JComboBox<Food.TypeOfFood> groupboxes) {
         panel.add(groupboxes);
         groupboxes.addItem(Food.TypeOfFood.ALLA);
@@ -176,16 +207,8 @@ public class GUI2 extends JFrame {
         groupboxes.addItem(Food.TypeOfFood.VEGAN);
         groupboxes.setSelectedIndex(0);
     }
-    public void SortingSpace(Object selectedType) {
-        Filter filter = new Filter();
-        sortedFoodList = filter.TypeOfFoodFilter(consumableArrayList,
-                selectedType);
-        consumableArrayList = sortedFoodList;
-        showDishLabel.setText(consumableArrayList.get(0).name);
-        showTimeLabel.setText("Tillagningstid: " + consumableArrayList.get(0).timeToPrepare + " minuter");
-        showTypeLabel.setText("Typ: "+ consumableArrayList.get(0).dietType);
-        cards.show(mainPanel,"showrecipe");
-    }
+
+
 
     //PANELER
     private void createAddFoodPanel() {
@@ -228,11 +251,9 @@ public class GUI2 extends JFrame {
     }
 
     private void showRandomFood() {
-        Collections.shuffle(consumableArrayList);
-        showDishLabel.setText("Maträtt: " +
-                consumableArrayList.get(0).name);
-        showTimeLabel.setText("Tillagningstid: " +
-                consumableArrayList.get(0).timeToPrepare + " minuter");
+
+        foodManager.refreshList();
+        updateFoodDisplay(foodManager.getFood());
         cards.show(mainPanel,ADD_OR_GET_CARD);
     }
 
