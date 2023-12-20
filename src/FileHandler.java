@@ -37,7 +37,7 @@ public class FileHandler {
         return instance;
     }
     public static void main(String[] args) {
-        Food c = new Food("Pasta carbonara",10);
+        Food c = new Food("Pasta carbonara",15);
         c.setType(Food.TypeOfFood.MEAT);
         ArrayList<Food> list = new ArrayList<>();
         list.add(c);

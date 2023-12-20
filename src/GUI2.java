@@ -62,7 +62,7 @@ public class GUI2 extends JFrame {
         this.add(mainPanel);
         this.setVisible(true);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setSize(400, 400);
+        this.setSize(350, 500);
     }
 
     private void initializeComponents() {
@@ -160,13 +160,13 @@ public class GUI2 extends JFrame {
         JPanel showFoodPanel = new JPanel(new GridBagLayout());
         showFoodPanel.setBackground(BACKGROUND_COLOR);
         gbc.gridy = 0;
-        addDropBox(showFoodPanel, showTypeOfFoodBox);
+        addDropBox(showFoodPanel, showTypeOfFoodBox,gbc);
         gbc.gridy = 1;
         showFoodPanel.add(showDishLabel,gbc);
-        showDishLabel.setFont(SMALLER_FONT);
+        showDishLabel.setFont(TEXT_FONT);
         gbc.gridy = 2;
         showFoodPanel.add(showTimeLabel,gbc);
-        showTimeLabel.setFont(SMALLER_FONT);
+        showTimeLabel.setFont(TEXT_FONT);
         gbc.gridy = 3;
         showFoodPanel.add(createButton("Sök igen",TEXT_FONT,e->refreshFood()),gbc);
         gbc.gridy = 4;
@@ -181,26 +181,28 @@ public class GUI2 extends JFrame {
         showFoodPanel.add(createButton("Sortera efter tid",TEXT_FONT,e->searchByTime()),gbc);
         gbc.gridy = 9;
         showFoodPanel.add(setTimeTextArea,gbc);
+        gbc.gridy = 10;
+        showFoodPanel.add(createButton("Ta bort allt",TEXT_FONT,e->removeAllFood()),gbc);
 
         mainPanel.add(showFoodPanel,"showrecipe");
+    }
+
+    private void removeAllFood() {
+        foodManager.removeAllFood();
+
     }
 
     private void searchByTime() {
         consumableArrayList = foodManager.refreshAndSortByTime(Integer.parseInt(setTimeTextArea.getText()));
         foodManager.refreshList();
-
         Random random = new Random();
         int randomIndex = random.nextInt(consumableArrayList.size());
-
         Food firstFood = consumableArrayList.get(randomIndex);
-
         updateFoodDisplay(firstFood);
-        System.out.println(firstFood.name);
-
     }
 
-    private void addDropBox(JPanel panel,JComboBox<Food.TypeOfFood> groupboxes) {
-        panel.add(groupboxes);
+    private void addDropBox(JPanel panel,JComboBox<Food.TypeOfFood> groupboxes,GridBagConstraints gbc) {
+        panel.add(groupboxes, gbc);
         groupboxes.addItem(Food.TypeOfFood.ALLA);
         groupboxes.addItem(Food.TypeOfFood.MEAT);
         groupboxes.addItem(Food.TypeOfFood.VEGETARIAN);
@@ -208,9 +210,6 @@ public class GUI2 extends JFrame {
         groupboxes.setSelectedIndex(0);
     }
 
-
-
-    //PANELER
     private void createAddFoodPanel() {
         JPanel addFoodPanel = new JPanel(new GridBagLayout());
         addFoodPanel.setBackground(BACKGROUND_COLOR);
@@ -218,16 +217,17 @@ public class GUI2 extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
         addFoodPanel.add(addNameLabel,gbc);
-        addNameLabel.setFont(SMALLER_FONT);
+        addNameLabel.setFont(TEXT_FONT);
         gbc.gridx = 1;
         addFoodPanel.add(addNameTextArea,gbc);
         gbc.gridx = 0; gbc.gridy = 1;
         addFoodPanel.add(addTimeLabel,gbc);
-        addTimeLabel.setFont(SMALLER_FONT);
+        addTimeLabel.setFont(TEXT_FONT);
         gbc.gridx = 1;
         addFoodPanel.add(addTimeTextArea,gbc);
         gbc.gridx = 0; gbc.gridy = 2;
         addFoodPanel.add(addTypeOfFood, gbc);
+        addTypeOfFood.setFont(TEXT_FONT);
         gbc.gridx = 1;
         addDropBox(addFoodPanel,addTypeOfFoodDropBox, gbc);
         gbc.gridx = 0; gbc.gridy = 3;

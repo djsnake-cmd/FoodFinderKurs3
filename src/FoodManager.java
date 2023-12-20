@@ -46,6 +46,10 @@ public class FoodManager {
         }
         return null;
     }
+    public void removeAllFood(){
+         consumableArrayList.clear();
+         fileHandler.writeListToFile(consumableArrayList);
+    }
 
     public String getAllFoods(Food.TypeOfFood type) {
         StringBuilder sb = new StringBuilder();
