@@ -250,7 +250,6 @@ public class GUI2 extends JFrame {
     }
 
     private void showRandomFood() {
-
         foodManager.refreshList();
         updateFoodDisplay(foodManager.getFood());
         cards.show(mainPanel,ADD_OR_GET_CARD);
